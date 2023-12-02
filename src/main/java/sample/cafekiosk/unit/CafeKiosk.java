@@ -39,15 +39,9 @@ public class CafeKiosk {
 		beverages.clear();
 	}
 
-	public int calculateTotalPrice() {
-		int totalPrice = 0;
-		for (Beverage beverage : beverages) {
-			totalPrice += beverage.getPrice();
-		}
 
-		return totalPrice;
-	}
-
+	// 내부로직 내에 시간에 대한 변수가 있기에
+	// 특정 시간대가 아니면 예외처리 유닛테스트를 특정짓지 못한다.
 	public Order createOrder() {
 		LocalDateTime currentDateTime = LocalDateTime.now();
 		LocalTime currentTime = currentDateTime.toLocalTime();
@@ -58,6 +52,8 @@ public class CafeKiosk {
 		return new Order(currentDateTime, beverages);
 	}
 
+	// 변화가 생길 수 있는 변수를 외부에서 받아왔기에
+	// 시간에 관련한 변수 핸들링이 가능해져 유닛테스트가 가능해졌다.
 	public Order createOrder(LocalDateTime currentDateTime) {
 		LocalTime currentTime = currentDateTime.toLocalTime();
 		if (currentTime.isBefore(SHOP_OPEN_TIME) || currentTime.isAfter(SHOP_CLOSE_TIME)) {
@@ -65,5 +61,11 @@ public class CafeKiosk {
 		}
 
 		return new Order(currentDateTime, beverages);
+	}
+
+	public int calculateTotalPrice() {
+		return beverages.stream()
+				.mapToInt(Beverage::getPrice)
+				.sum();
 	}
 }
