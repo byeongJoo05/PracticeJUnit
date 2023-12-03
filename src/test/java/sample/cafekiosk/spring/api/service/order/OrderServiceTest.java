@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import sample.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
 import sample.cafekiosk.spring.api.service.order.response.OrderResponse;
@@ -21,8 +22,9 @@ import sample.cafekiosk.spring.domain.product.Product;
 import sample.cafekiosk.spring.domain.product.ProductRepository;
 import sample.cafekiosk.spring.domain.product.ProductType;
 
+@ActiveProfiles("test")
 @SpringBootTest
-// @DataJpaTest
+	//@DataJpaTest
 class OrderServiceTest {
 
 	@Autowired
@@ -35,22 +37,25 @@ class OrderServiceTest {
 	@Test
 	void createOrder() {
 		// given
+		LocalDateTime registeredDateTime = LocalDateTime.now();
+
 		Product product1 = createProduct(HANDMADE, "001", 1000);
 		Product product2 = createProduct(HANDMADE, "002", 3000);
 		Product product3 = createProduct(HANDMADE, "003", 5000);
+		productRepository.saveAll(List.of(product1, product2, product3));
 
 		OrderCreateRequest request = OrderCreateRequest.builder()
 			.productNumbers(List.of("001", "002"))
 			.build();
 
 		// when
-		OrderResponse orderResponse = orderService.createOrder(request, LocalDateTime.now());
+		OrderResponse orderResponse = orderService.createOrder(request, registeredDateTime);
 
 		// then
 		assertThat(orderResponse.getId()).isNotNull();
 		assertThat(orderResponse)
 			.extracting("registeredDateTime", "totalPrice")
-			.contains(LocalDateTime.now(), 4000);
+			.contains(registeredDateTime, 4000);
 		assertThat(orderResponse.getProducts()).hasSize(2)
 			.extracting("productNumber", "price")
 			.containsExactlyInAnyOrder(
@@ -59,8 +64,7 @@ class OrderServiceTest {
 			);
 	}
 
-	private Product createProduct(ProductType type, String productNumber,
-		int price) {
+	private Product createProduct(ProductType type, String productNumber, int price) {
 		return Product.builder()
 			.type(type)
 			.productNumber(productNumber)
@@ -69,4 +73,5 @@ class OrderServiceTest {
 			.name("메뉴 이름")
 			.build();
 	}
+
 }
