@@ -4,9 +4,11 @@ import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import sample.cafekiosk.spring.domain.order.Order;
 
 @Getter
+@NoArgsConstructor
 public class OrderCreateRequest {
 
 	private List<String> productNumbers;
